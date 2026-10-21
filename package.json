@@ -1,0 +1,31 @@
+{
+  "name": "@nnayz/skills",
+  "version": "0.1.0",
+  "description": "Nasrul's shared agent skills installer",
+  "type": "module",
+  "bin": {
+    "nnayz-skills": "bin/skills.mjs"
+  },
+  "files": [
+    "bin",
+    "skills",
+    "README.md",
+    "UPSTREAMS.md",
+    "LICENSE"
+  ],
+  "scripts": {
+    "test": "node --test test/*.test.mjs",
+    "check": "node --check bin/skills.mjs && node --test test/*.test.mjs"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/nnayz/skills.git"
+  },
+  "license": "MIT",
+  "engines": {
+    "node": ">=18.17"
+  },
+  "publishConfig": {
+    "access": "public"
+  }
+}
