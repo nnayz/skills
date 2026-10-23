@@ -45,13 +45,14 @@ Use `--target <directory>` for another agent-specific skills folder.
 
 ## Bundled skills
 
-This repository currently contains 18 skills:
+This repository currently contains 19 skills:
 
 - `i-have-adhd`
 - `archify`
 - `better-accessibility`, `better-colors`, `better-interface`, `better-layout`
 - `better-typography`, `better-ui`, `better-writing`, `break`, `build-design`
 - `explain-interface`, `interface-review`, `state-machine`, `technical-drawing`, `variant`
+- `component-canvas`
 - `make-interfaces-feel-better`
 - `ponytail`
 
