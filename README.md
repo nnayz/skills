@@ -1,10 +1,10 @@
-# @nnayz/skills
+# Skills installer
 
-One command installs Nasrul's shared agent skills into any project.
+A small interactive installer for a curated set of agent skills. The repository stores only a source catalog; skills are downloaded directly from their upstream repositories when selected.
 
-## Install
+## Run
 
-Run directly from the personal GitHub repository:
+Use either command from the project where you want the skills:
 
 ```sh
 npx --yes github:nnayz/skills
@@ -12,68 +12,53 @@ npx --yes github:nnayz/skills
 bunx github:nnayz/skills
 ```
 
-The default destination is `.agents/skills`, which is shared by compatible coding agents. The installer does not overwrite an existing skill unless you pass `--force`.
+Running the package with no options opens the TUI. It lets you choose:
 
-After publishing the prepared npm package, the shorter commands are:
+- every catalog skill or specific skills
+- project or global installation
+- every supported AI agent or specific agents
+- final confirmation before anything is installed
+
+The installer supports Claude Code, Codex, Cursor, Prime Agent, OpenCode, `fx` by Vercel, and Grok. It delegates downloads and agent-directory integration to the open [`skills`](https://github.com/vercel-labs/skills) installer.
+
+## Automation
+
+Flags are available for scripts and CI without introducing another command name:
 
 ```sh
-npx --yes @nnayz/skills
-# or
-bunx @nnayz/skills
+# Preview one skill for Claude Code
+npx --yes github:nnayz/skills --skill archify --agent claude-code --dry-run
+
+# Install selected skills for selected agents
+npx --yes github:nnayz/skills \
+  --skill better-ui,better-layout \
+  --agent codex,cursor \
+  --yes
+
+# Install the complete catalog for every supported agent
+npx --yes github:nnayz/skills --all
+
+# Inspect the catalog
+npx --yes github:nnayz/skills --list
+npx --yes github:nnayz/skills --list-agents
 ```
 
-## Usage
+Use `--global` to install for the current user instead of the current project. Agent aliases such as `claude`, `prime`, `open-code`, `fx-by-vercel`, and `grok-build` are accepted.
 
-```sh
-# Install every bundled skill into the current project
-nnayz-skills
+Existing skills are not replaced silently. The TUI asks before replacing selected skills; non-interactive installs require `--force` when a selected skill already exists. This release replaces the former positional skill syntax and custom `--target` option with the catalog-driven `--skill` and `--agent` flow.
 
-# Install only selected skills
-nnayz-skills ponytail i-have-adhd
-nnayz-skills --skill ponytail,i-have-adhd
+## Catalog
 
-# Install one skill for Claude Code
-nnayz-skills --skill archify --agent claude-code
+[`catalog.json`](catalog.json) is the source of truth for the curated skill names, descriptions, upstream repositories, supported agents, and aliases. Skills from the same upstream are installed together to avoid redundant downloads.
 
-# Install all skills for one or more agents
-nnayz-skills --skill '*' --agent codex,cursor
-
-# Install every skill for every supported agent
-nnayz-skills --all
-
-# Refresh existing copies from this repository
-nnayz-skills --force
-
-# Install into the personal ~/.agents/skills collection
-nnayz-skills --global --force
-
-# Inspect what is available
-nnayz-skills --list
-nnayz-skills --list-agents
-```
-
-Agent choices are `claude-code`, `codex`, `cursor`, `prime-agent`, `opencode`, `fx`, and `grok`. Common aliases such as `claude`, `prime`, `open-code`, `fx-by-vercel`, and `grok-build` are accepted. Use `*` or `all` with `--skill` or `--agent` to select every available choice. Repeat either option or pass a comma-separated list to select several.
-
-Project installs for Codex, Cursor, Prime Agent, OpenCode, and `fx` share `.agents/skills`, which those agents discover natively. Claude Code uses `.claude/skills`, and Grok uses `.grok/skills`. Add `--global` to use the corresponding user-level directories, or use `--target <directory>` for another agent-specific skills folder.
-
-## Bundled skills
-
-This repository currently contains 19 skills:
-
-- `i-have-adhd`
-- `archify`
-- `better-accessibility`, `better-colors`, `better-interface`, `better-layout`
-- `better-typography`, `better-ui`, `better-writing`, `break`, `build-design`
-- `explain-interface`, `interface-review`, `state-machine`, `technical-drawing`, `variant`
-- `component-canvas`
-- `make-interfaces-feel-better`
-- `ponytail`
-
-See [UPSTREAMS.md](UPSTREAMS.md) for source repositories and update provenance.
+No third-party skill contents are committed to this repository. Upstream availability and changes therefore affect installation; review the catalog and upstream repositories before installing.
 
 ## Development
 
+Requires Node.js 22.20 or later.
+
 ```sh
-npm test
+npm install
+npm run check
 npm pack --dry-run
 ```

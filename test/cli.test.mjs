@@ -1,7 +1,5 @@
 import assert from "node:assert/strict";
-import { mkdtemp, readFile, rm, writeFile } from "node:fs/promises";
-import { tmpdir } from "node:os";
-import { join, resolve } from "node:path";
+import { resolve } from "node:path";
 import { spawnSync } from "node:child_process";
 import test from "node:test";
 
@@ -11,129 +9,129 @@ function run(args, options = {}) {
   return spawnSync(process.execPath, [cli, ...args], { encoding: "utf8", ...options });
 }
 
-test("lists bundled skills", () => {
+test("lists catalog skills and upstream sources", () => {
   const result = run(["--list"]);
   assert.equal(result.status, 0, result.stderr);
-  assert.match(result.stdout, /^ponytail$/m);
-  assert.match(result.stdout, /^archify$/m);
+  assert.match(result.stdout, /^archify\ttt-a1i\/archify$/m);
+  assert.match(result.stdout, /^ponytail\tDietrichGebert\/ponytail$/m);
+  assert.equal(result.stdout.trim().split("\n").length, 19);
 });
 
-test("installs a selected skill and protects existing content", async () => {
-  const root = await mkdtemp(join(tmpdir(), "nnayz-skills-"));
-  const target = join(root, "skills");
+test("lists supported agents without exposing a separate command name", () => {
+  const result = run(["--list-agents"]);
+  assert.equal(result.status, 0, result.stderr);
+  assert.match(result.stdout, /^claude-code\tClaude Code$/m);
+  assert.match(result.stdout, /^prime-agent\tPrime Agent$/m);
 
-  try {
-    const first = run(["ponytail", "--target", target]);
-    assert.equal(first.status, 0, first.stderr);
-    assert.match(await readFile(join(target, "ponytail", "SKILL.md"), "utf8"), /name: ponytail/);
-
-    await writeFile(join(target, "ponytail", "SKILL.md"), "local edit\n");
-    const second = run(["ponytail", "--target", target]);
-    assert.equal(second.status, 0, second.stderr);
-    assert.equal(await readFile(join(target, "ponytail", "SKILL.md"), "utf8"), "local edit\n");
-
-    const forced = run(["ponytail", "--target", target, "--force"]);
-    assert.equal(forced.status, 0, forced.stderr);
-    assert.match(await readFile(join(target, "ponytail", "SKILL.md"), "utf8"), /name: ponytail/);
-  } finally {
-    await rm(root, { recursive: true, force: true });
-  }
+  const help = run(["--help"]);
+  assert.equal(help.status, 0, help.stderr);
+  assert.match(help.stdout, /npx --yes github:nnayz\/skills/);
+  assert.doesNotMatch(help.stdout, /nnayz-skills/);
 });
 
-test("rejects unknown skills", () => {
-  const result = run(["missing-skill"]);
+test("groups selected skills into upstream dry-run commands", () => {
+  const result = run([
+    "--skill", "better-ui,archify,better-layout",
+    "--agent", "claude-code,cursor",
+    "--dry-run",
+  ]);
+  assert.equal(result.status, 0, result.stderr);
+  assert.match(result.stdout, /^npx --yes skills add jakubkrehel\/skills --skill better-ui better-layout --agent claude-code cursor --yes --json$/m);
+  assert.match(result.stdout, /^npx --yes skills add tt-a1i\/archify --skill archify --agent claude-code cursor --yes --json$/m);
+  assert.equal(result.stdout.trim().split("\n").length, 2);
+});
+
+test("maps Prime Agent to the shared installer target and deduplicates it", () => {
+  const result = run([
+    "--skill", "ponytail",
+    "--agent", "prime,codex",
+    "--global",
+    "--dry-run",
+  ]);
+  assert.equal(result.status, 0, result.stderr);
+  assert.equal(
+    result.stdout.trim(),
+    "npx --yes skills add DietrichGebert/ponytail --skill ponytail --agent codex --yes --json --global",
+  );
+});
+
+test("expands all skills and agents into grouped commands", () => {
+  const result = run(["--all", "--dry-run"]);
+  assert.equal(result.status, 0, result.stderr);
+  assert.equal(result.stdout.trim().split("\n").length, 6);
+  assert.match(result.stdout, /^npx --yes skills add jakubkrehel\/skills --skill better-accessibility .* --agent claude-code codex cursor opencode fx grok --yes --json$/m);
+  assert.match(result.stdout, /^npx --yes skills add ibelick\/ui-skills --skill component-canvas /m);
+});
+
+test("validates skill and agent choices", () => {
+  const skill = run(["--skill", "missing-skill", "--agent", "codex", "--dry-run"]);
+  assert.equal(skill.status, 1);
+  assert.match(skill.stderr, /Unknown skill: missing-skill/);
+
+  const agent = run(["--skill", "archify", "--agent", "missing-agent", "--dry-run"]);
+  assert.equal(agent.status, 1);
+  assert.match(agent.stderr, /Unknown agent: missing-agent/);
+});
+
+test("requires explicit confirmation for non-interactive installs", () => {
+  const result = run(["--skill", "archify", "--agent", "codex"]);
   assert.equal(result.status, 1);
-  assert.match(result.stderr, /Unknown skill: missing-skill/);
+  assert.match(result.stderr, /Add --yes to install non-interactively/);
 });
 
-test("installs flagged skills for a selected agent", async () => {
-  const root = await mkdtemp(join(tmpdir(), "nnayz-skills-agent-"));
+test("protects existing agent-specific skills unless forced", async () => {
+  const { mkdir, mkdtemp, rm, writeFile } = await import("node:fs/promises");
+  const { tmpdir } = await import("node:os");
+  const { join } = await import("node:path");
+  const root = await mkdtemp(join(tmpdir(), "skill-set-overwrite-"));
 
   try {
-    const result = run(["--skill", "ponytail", "--agent", "claude"], { cwd: root });
-    assert.equal(result.status, 0, result.stderr);
-    assert.match(await readFile(join(root, ".claude", "skills", "ponytail", "SKILL.md"), "utf8"), /name: ponytail/);
+    const skill = join(root, ".claude", "skills", "archify");
+    await mkdir(skill, { recursive: true });
+    await writeFile(join(skill, "SKILL.md"), "local edit\n");
+
+    const result = run(["--skill", "archify", "--agent", "claude-code", "--yes"], { cwd: root });
+    assert.equal(result.status, 1);
+    assert.match(result.stderr, /Already installed: archify/);
+    assert.match(result.stderr, /Add --force/);
   } finally {
     await rm(root, { recursive: true, force: true });
   }
 });
 
-test("deduplicates shared targets for multiple agents", async () => {
-  const root = await mkdtemp(join(tmpdir(), "nnayz-skills-agents-"));
+test("protects the shared canonical copy for agent-specific selections", async () => {
+  const { mkdir, mkdtemp, rm, writeFile } = await import("node:fs/promises");
+  const { tmpdir } = await import("node:os");
+  const { join } = await import("node:path");
+  const root = await mkdtemp(join(tmpdir(), "skill-set-canonical-"));
 
   try {
-    const result = run(["-s", "ponytail", "-a", "codex,cursor,prime-agent,opencode,fx"], { cwd: root });
-    assert.equal(result.status, 0, result.stderr);
-    assert.match(await readFile(join(root, ".agents", "skills", "ponytail", "SKILL.md"), "utf8"), /name: ponytail/);
-    assert.match(result.stdout, /Installed 1 skill into/);
+    const skill = join(root, ".agents", "skills", "archify");
+    await mkdir(skill, { recursive: true });
+    await writeFile(join(skill, "SKILL.md"), "local edit\n");
+
+    const result = run(["--skill", "archify", "--agent", "claude-code,grok", "--yes"], { cwd: root });
+    assert.equal(result.status, 1);
+    assert.match(result.stderr, /Already installed: archify/);
   } finally {
     await rm(root, { recursive: true, force: true });
   }
 });
 
-test("installs a selected skill for all supported agent targets", async () => {
-  const root = await mkdtemp(join(tmpdir(), "nnayz-skills-all-agents-"));
-
-  try {
-    const result = run(["--skill", "ponytail", "--agent", "*"], { cwd: root });
-    assert.equal(result.status, 0, result.stderr);
-    for (const target of [".agents", ".claude", ".grok"]) {
-      assert.match(await readFile(join(root, target, "skills", "ponytail", "SKILL.md"), "utf8"), /name: ponytail/);
-    }
-    assert.match(result.stdout, /Installed 3 skills into 3 agent directories/);
-  } finally {
-    await rm(root, { recursive: true, force: true });
-  }
-});
-
-test("installs all skills for all supported agent targets", async () => {
-  const root = await mkdtemp(join(tmpdir(), "nnayz-skills-all-"));
-
-  try {
-    const result = run(["--all"], { cwd: root });
-    assert.equal(result.status, 0, result.stderr);
-    for (const target of [".agents", ".claude", ".grok"]) {
-      assert.match(await readFile(join(root, target, "skills", "archify", "SKILL.md"), "utf8"), /name: archify/);
-      assert.match(await readFile(join(root, target, "skills", "ponytail", "SKILL.md"), "utf8"), /name: ponytail/);
-    }
-  } finally {
-    await rm(root, { recursive: true, force: true });
-  }
-});
-
-test("lists and validates agent choices", () => {
-  const listed = run(["--list-agents"]);
-  assert.equal(listed.status, 0, listed.stderr);
-  assert.match(listed.stdout, /^claude-code\tClaude Code\t\.claude\/skills/m);
-  assert.match(listed.stdout, /^prime-agent\tPrime Agent\t\.agents\/skills/m);
-
-  const unknown = run(["--agent", "missing-agent", "--skill", "ponytail"]);
-  assert.equal(unknown.status, 1);
-  assert.match(unknown.stderr, /Unknown agent: missing-agent/);
-});
-
-test("rejects conflicting target choices", () => {
-  const result = run(["--agent", "codex", "--target", "somewhere"]);
+test("requires a terminal when launched without options", () => {
+  const result = run([]);
   assert.equal(result.status, 1);
-  assert.match(result.stderr, /Use either --agent or --target/);
+  assert.match(result.stderr, /interactive installer needs a terminal/);
+});
 
-  const all = run(["--all", "--target", "somewhere"]);
+test("rejects conflicting and malformed selections", () => {
+  const all = run(["--all", "--skill", "archify", "--dry-run"]);
   assert.equal(all.status, 1);
   assert.match(all.stderr, /--all cannot be combined/);
-});
 
-test("rejects empty and invalid wildcard selections", () => {
   for (const args of [["--skill", ",,,"], ["--agent", ",,,"]]) {
     const result = run(args);
     assert.equal(result.status, 1);
     assert.match(result.stderr, /requires a name/);
   }
-
-  const skill = run(["--skill", "*,missing-skill"]);
-  assert.equal(skill.status, 1);
-  assert.match(skill.stderr, /Unknown skill: missing-skill/);
-
-  const agent = run(["--skill", "ponytail", "--agent", "*,missing-agent"]);
-  assert.equal(agent.status, 1);
-  assert.match(agent.stderr, /Unknown agent: missing-agent/);
 });
