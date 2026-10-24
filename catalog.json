@@ -1,0 +1,127 @@
+{
+  "agents": [
+    { "id": "claude-code", "name": "Claude Code", "aliases": ["claude"], "installerAgent": "claude-code", "projectPath": ".claude/skills", "globalPath": ".claude/skills" },
+    { "id": "codex", "name": "Codex", "aliases": [], "installerAgent": "codex", "projectPath": ".agents/skills", "globalPath": ".agents/skills" },
+    { "id": "cursor", "name": "Cursor", "aliases": [], "installerAgent": "cursor", "projectPath": ".agents/skills", "globalPath": ".cursor/skills" },
+    { "id": "prime-agent", "name": "Prime Agent", "aliases": ["prime"], "installerAgent": "codex", "projectPath": ".agents/skills", "globalPath": ".agents/skills" },
+    { "id": "opencode", "name": "OpenCode", "aliases": ["open-code"], "installerAgent": "opencode", "projectPath": ".agents/skills", "globalPath": ".config/opencode/skills" },
+    { "id": "fx", "name": "fx by Vercel", "aliases": ["vercel-fx", "fx-by-vercel"], "installerAgent": "fx", "projectPath": ".agents/skills", "globalPath": ".agents/skills" },
+    { "id": "grok", "name": "Grok", "aliases": ["grok-build"], "installerAgent": "grok", "projectPath": ".grok/skills", "globalPath": ".grok/skills" }
+  ],
+  "skills": [
+    {
+      "id": "i-have-adhd",
+      "name": "I Have ADHD",
+      "description": "Shape responses into focused, actionable steps for readers with ADHD.",
+      "source": "ayghri/i-have-adhd"
+    },
+    {
+      "id": "archify",
+      "name": "Archify",
+      "description": "Create validated architecture diagrams and one-page explainers.",
+      "source": "tt-a1i/archify"
+    },
+    {
+      "id": "better-accessibility",
+      "name": "Better Accessibility",
+      "description": "Review and fix interfaces against WCAG 2.2.",
+      "source": "jakubkrehel/skills"
+    },
+    {
+      "id": "better-colors",
+      "name": "Better Colors",
+      "description": "Build palettes, semantic tokens, and accessible color systems.",
+      "source": "jakubkrehel/skills"
+    },
+    {
+      "id": "better-interface",
+      "name": "Better Interface",
+      "description": "Run a complete interface quality review.",
+      "source": "jakubkrehel/skills"
+    },
+    {
+      "id": "better-layout",
+      "name": "Better Layout",
+      "description": "Improve grouping, alignment, responsive structure, and reading order.",
+      "source": "jakubkrehel/skills"
+    },
+    {
+      "id": "better-typography",
+      "name": "Better Typography",
+      "description": "Refine type scales, spacing, wrapping, and font features.",
+      "source": "jakubkrehel/skills"
+    },
+    {
+      "id": "better-ui",
+      "name": "Better UI",
+      "description": "Polish surfaces, icons, shadows, and motion.",
+      "source": "jakubkrehel/skills"
+    },
+    {
+      "id": "better-writing",
+      "name": "Better Writing",
+      "description": "Improve labels, errors, empty states, and confirmations.",
+      "source": "jakubkrehel/skills"
+    },
+    {
+      "id": "break",
+      "name": "Break",
+      "description": "Stress-test a component across every reachable scenario.",
+      "source": "jakubkrehel/skills"
+    },
+    {
+      "id": "build-design",
+      "name": "Build Design",
+      "description": "Build interfaces that match Figma files or reference images.",
+      "source": "jakubkrehel/skills"
+    },
+    {
+      "id": "explain-interface",
+      "name": "Explain Interface",
+      "description": "Explain how a live interface, visual effect, or animation works.",
+      "source": "jakubkrehel/skills"
+    },
+    {
+      "id": "interface-review",
+      "name": "Interface Review",
+      "description": "Review a branch or pull request for interface regressions.",
+      "source": "jakubkrehel/skills"
+    },
+    {
+      "id": "state-machine",
+      "name": "State Machine",
+      "description": "Render every state of a component on a temporary page.",
+      "source": "jakubkrehel/skills"
+    },
+    {
+      "id": "technical-drawing",
+      "name": "Technical Drawing",
+      "description": "Create precise static drawings of physical objects.",
+      "source": "jakubkrehel/skills"
+    },
+    {
+      "id": "variant",
+      "name": "Variant",
+      "description": "Build and compare multiple variants of a component.",
+      "source": "jakubkrehel/skills"
+    },
+    {
+      "id": "component-canvas",
+      "name": "Component Canvas",
+      "description": "Explore existing components and variants on an interactive canvas.",
+      "source": "ibelick/ui-skills"
+    },
+    {
+      "id": "make-interfaces-feel-better",
+      "name": "Make Interfaces Feel Better",
+      "description": "Apply detailed design-engineering polish to an interface.",
+      "source": "jakubkrehel/make-interfaces-feel-better"
+    },
+    {
+      "id": "ponytail",
+      "name": "Ponytail",
+      "description": "Turn a rough UI idea into an intentional design direction.",
+      "source": "DietrichGebert/ponytail"
+    }
+  ]
+}

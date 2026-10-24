@@ -1,16 +1,13 @@
 {
   "name": "@nnayz/skills",
-  "version": "0.2.0",
-  "description": "Nasrul's shared agent skills installer",
+  "version": "0.3.0",
+  "description": "Interactive installer for a curated set of agent skills",
   "type": "module",
-  "bin": {
-    "nnayz-skills": "bin/skills.mjs"
-  },
+  "bin": "bin/skills.mjs",
   "files": [
     "bin",
-    "skills",
+    "catalog.json",
     "README.md",
-    "UPSTREAMS.md",
     "LICENSE"
   ],
   "scripts": {
@@ -23,9 +20,13 @@
   },
   "license": "MIT",
   "engines": {
-    "node": ">=18.17"
+    "node": ">=22.20.0"
   },
   "publishConfig": {
     "access": "public"
+  },
+  "dependencies": {
+    "@clack/prompts": "^1.0.0",
+    "skills": "^1.7.4"
   }
 }
