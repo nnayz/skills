@@ -1,6 +1,6 @@
 {
   "name": "@nnayz/skills",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "Nasrul's shared agent skills installer",
   "type": "module",
   "bin": {
