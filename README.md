@@ -47,6 +47,19 @@ Use `--global` to install for the current user instead of the current project. A
 
 Existing skills are not replaced silently. The TUI asks before replacing selected skills; non-interactive installs require `--force` when a selected skill already exists. This release replaces the former positional skill syntax and custom `--target` option with the catalog-driven `--skill` and `--agent` flow.
 
+## Troubleshooting
+
+Prefer `npx --yes github:nnayz/skills` when in doubt: npm re-resolves GitHub refs on every run, so it always serves the latest installer and catalog.
+
+`bunx` caches GitHub dependencies at the first resolution and keeps serving that copy even after `main` moves ahead. If `bunx github:nnayz/skills` runs an older version, clear the cached entry and run again:
+
+```sh
+rm -rf ~/.bun/install/cache/skills/nnayz-skills-*
+bunx github:nnayz/skills
+```
+
+`bunx github:nnayz/skills --version` should then match the latest version on `main`.
+
 ## Catalog
 
 [`catalog.json`](catalog.json) is the source of truth for the curated skill names, descriptions, upstream repositories, supported agents, and aliases. Skills from the same upstream are installed together to avoid redundant downloads.
