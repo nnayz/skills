@@ -30,6 +30,16 @@ nnayz-skills
 
 # Install only selected skills
 nnayz-skills ponytail i-have-adhd
+nnayz-skills --skill ponytail,i-have-adhd
+
+# Install one skill for Claude Code
+nnayz-skills --skill archify --agent claude-code
+
+# Install all skills for one or more agents
+nnayz-skills --skill '*' --agent codex,cursor
+
+# Install every skill for every supported agent
+nnayz-skills --all
 
 # Refresh existing copies from this repository
 nnayz-skills --force
@@ -39,9 +49,12 @@ nnayz-skills --global --force
 
 # Inspect what is available
 nnayz-skills --list
+nnayz-skills --list-agents
 ```
 
-Use `--target <directory>` for another agent-specific skills folder.
+Agent choices are `claude-code`, `codex`, `cursor`, `prime-agent`, `opencode`, `fx`, and `grok`. Common aliases such as `claude`, `prime`, `open-code`, `fx-by-vercel`, and `grok-build` are accepted. Use `*` or `all` with `--skill` or `--agent` to select every available choice. Repeat either option or pass a comma-separated list to select several.
+
+Project installs for Codex, Cursor, Prime Agent, OpenCode, and `fx` share `.agents/skills`, which those agents discover natively. Claude Code uses `.claude/skills`, and Grok uses `.grok/skills`. Add `--global` to use the corresponding user-level directories, or use `--target <directory>` for another agent-specific skills folder.
 
 ## Bundled skills
 
